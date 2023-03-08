@@ -1,1 +1,21 @@
+name: ApplicationBuild
 
+on: workflow_dispatch
+
+env:
+  SUB_DIRECTORY: unity-auto-build-sample/
+  OUTPUT_PATH: Build
+  UNITY_VERSION: "2021.3.19f1"
+
+jobs:
+  android-build:
+    runs-on: self-hosted
+    steps:
+    - name: Checkout client
+      uses: actions/checkout@v2
+      with:
+        path: client
+        clean: 'false'
+    - name: Build Android
+      run: |
+        /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./$SUB_DIRECTORY -executeMethod CI.BuildAndroid -buildTarget Android
