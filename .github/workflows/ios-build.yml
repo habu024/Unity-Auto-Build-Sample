@@ -44,6 +44,13 @@ jobs:
 
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+    - name: Import Code Signing Certificates
+      uses: Apple-Actions/import-codesign-certs@v1
+      with:
+        keychain: "signing_temp"
+        create-keychain: false
+        p12-file-base64: ${{secrets.BUILD_CERTIFICATE_BASE64}}
+        p12-password: ""
     - name: Archive Xcode
       run: |
         xcodebuild -project ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj -scheme Unity-iPhone archive -archivePath ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcarchive -configuration Release -destination 'generic/platform=iOS'
