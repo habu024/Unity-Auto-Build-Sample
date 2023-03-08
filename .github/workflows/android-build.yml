@@ -21,4 +21,4 @@ jobs:
         echo $GITHUB_WORKSPACE
     - name: Build Android
       run: |
-        /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./client/$SUB_DIRECTORY -executeMethod CI.BuildAndroid -buildTarget Android
+        /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./$SUB_DIRECTORY -executeMethod CI.BuildAndroid -buildTarget Android

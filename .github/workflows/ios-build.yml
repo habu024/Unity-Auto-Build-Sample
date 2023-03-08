@@ -18,7 +18,7 @@ jobs:
         lfs: true
     - name: Build iOS
       run: |
-        /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./client/$SUB_DIRECTORY -executeMethod CI.BuildIOS -buildTarget iOS
+        /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./$SUB_DIRECTORY -executeMethod CI.BuildIOS -buildTarget iOS
     - name: Clean Xcode
       run: |
-        xcodebuild clean -project ./client/$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj -target Unity-iPhone -configuration Release
+        xcodebuild clean -project ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj -target Unity-iPhone -configuration Release
