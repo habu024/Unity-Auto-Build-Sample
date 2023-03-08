@@ -532,7 +532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cube: {fileID: 410126425}
-  speed: 0.02
+  speed: 20
 --- !u!4 &1105514392
 Transform:
   m_ObjectHideFlags: 0

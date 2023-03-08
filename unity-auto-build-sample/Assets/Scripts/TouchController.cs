@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class TouchController : MonoBehaviour {
     [SerializeField] Transform cube;
-    [SerializeField] float speed = 0.02f;
+    [SerializeField] float speed = 20f;
 
-    int screenWidth;
-    int screenHeight;
     bool isStop;
 
     void Awake() {
-        screenWidth = Screen.width;
-        screenHeight = Screen.height;
+        Application.targetFrameRate = 60;
     }
 
     void Update() {
@@ -22,7 +19,7 @@ public class TouchController : MonoBehaviour {
             OnMousePhase();
         }
         if(isStop) {return;}
-        cube.Rotate(new Vector3(speed, -speed * 0.5f, -speed));
+        cube.Rotate(new Vector3(speed, -speed * 0.5f, -speed) * Time.deltaTime);
     }
 
     void OnTouchPhase() {
