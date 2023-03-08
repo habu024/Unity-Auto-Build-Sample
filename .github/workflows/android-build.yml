@@ -1,21 +1,21 @@
-name: ApplicationBuild
+name: AndroidBuild
 
 on: workflow_dispatch
 
 env:
+  UNITY_VERSION: "2021.3.19f1"
   SUB_DIRECTORY: unity-auto-build-sample
   OUTPUT_PATH: Build
-  UNITY_VERSION: "2021.3.19f1"
 
 jobs:
   android-build:
     runs-on: self-hosted
     steps:
-    - name: Checkout client
-      uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v3
       with:
-        path: client
-        clean: 'false'
+        clean: false
+        lfs: true
     - name: Search Path
       run: |
         echo $GITHUB_WORKSPACE
