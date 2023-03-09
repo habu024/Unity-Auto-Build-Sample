@@ -42,6 +42,7 @@ jobs:
 
         security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
         security list-keychain -d user -s $KEYCHAIN_PATH
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
@@ -70,5 +71,4 @@ jobs:
       if: ${{always()}}
       run: |
         security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-        security delete-keychain "signing_temp.keychain"
         rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
