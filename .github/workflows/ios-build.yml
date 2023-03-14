@@ -60,13 +60,13 @@ jobs:
         keychain: "signing_temp"
         create-keychain: true
         p12-file-base64: ${{secrets.BUILD_CERTIFICATE_BASE64}}
-        p12-password: ${secrets.P12_PASSWORD}
-    - name: Archive Xcode
-      run: |
-        xcodebuild -project ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj -scheme Unity-iPhone archive -archivePath ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcarchive -configuration Release -destination 'generic/platform=iOS'
-    - name: Build ipa
-      run: |
-        xcodebuild -exportArchive -archivePath ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcarchive -exportPath ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS -exportOptionsPlist ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS/ExportOptions.plist
+        p12-password: ${{secrets.P12_PASSWORD}}
+    # - name: Archive Xcode
+    #   run: |
+    #     xcodebuild -project ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj -scheme Unity-iPhone archive -archivePath ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcarchive -configuration Release -destination 'generic/platform=iOS'
+    # - name: Build ipa
+    #   run: |
+    #     xcodebuild -exportArchive -archivePath ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcarchive -exportPath ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS -exportOptionsPlist ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS/ExportOptions.plist
     - name: Clean up keychain and provisioning profile
       if: ${{always()}}
       run: |
