@@ -68,9 +68,6 @@ jobs:
         mkdir -p ./private_keys
         echo -n "$ASC_API_KEY" | base64 -d -o ./private_keys/AuthKey_${{secrets.ASC_KEY_ID}}.p8
     - name: Archive Xcode
-      env:
-        ASC_ISSURE_ID: ${{secrets.ASC_ISSURE_ID}}
-        ASC_KEY_ID: ${{secrets.ASC_KEY_ID}}
       run: |
         xcodebuild \
           archive \
@@ -83,7 +80,7 @@ jobs:
           CODE_SIGNING_ALLOWED=NO
     - name: Build ipa
       env:
-        ASC_ISSURE_ID: ${{secrets.ASC_ISSURE_ID}}
+        ASC_ISSUER_ID: ${{secrets.ASC_ISSUER_ID}}
         ASC_KEY_ID: ${{secrets.ASC_KEY_ID}}
       run: |
         xcodebuild \
@@ -93,7 +90,7 @@ jobs:
           -exportOptionsPlist ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS/ExportOptions.plist \
           -allowProvisioningUpdates \
           -authenticationKeyPath ./private_keys/AuthKey_${{secrets.ASC_KEY_ID}}.p8 \
-          -authenticationKeyIssureID $ASC_ISSURE_ID \
+          -authenticationKeyIssuerID $ASC_ISSUER_ID \
           -authenticationKeyID $ASC_KEY_ID
 
     - name: Clean up keychain and provisioning profile
