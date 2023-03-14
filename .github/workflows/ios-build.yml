@@ -16,9 +16,9 @@ jobs:
       with:
         clean: false
         lfs: true
-    - name: Build iOS
-      run: |
-        /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./$SUB_DIRECTORY -executeMethod CI.BuildIOS -buildTarget iOS
+    # - name: Build iOS
+    #   run: |
+    #     /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./$SUB_DIRECTORY -executeMethod CI.BuildIOS -buildTarget iOS
     - name: Clean Xcode
       run: |
         xcodebuild clean -project ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj -target Unity-iPhone -configuration Release
@@ -57,8 +57,8 @@ jobs:
     - name: Import Code Signing Certificates
       uses: apple-actions/import-codesign-certs@v1
       with:
-        # keychain: "signing_temp"
-        # create-keychain: true
+        keychain: "signing_temp"
+        create-keychain: true
         p12-file-base64: ${{secrets.BUILD_CERTIFICATE_BASE64}}
         p12-password: ${secrets.P12_PASSWORD}
     - name: Archive Xcode
@@ -70,5 +70,6 @@ jobs:
     - name: Clean up keychain and provisioning profile
       if: ${{always()}}
       run: |
+        security delete-keychain $RUNNER_TEMP/signing_temp.keychain
         security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
         rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
