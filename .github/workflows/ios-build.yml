@@ -65,7 +65,7 @@ jobs:
       env:
         ASC_API_KEY: ${{secrets.ASC_API_KEY}}
       run: |
-        mkdir ./private_keys
+        mkdir -p ./private_keys
         echo -n "$ASC_API_KEY" | base64 -d -o ./private_keys/AuthKey_${{secrets.ASC_KEY_ID}}.p8
     - name: Archive Xcode
       env:
