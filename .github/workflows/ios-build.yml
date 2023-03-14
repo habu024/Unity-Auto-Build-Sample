@@ -89,7 +89,7 @@ jobs:
           -exportPath ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS \
           -exportOptionsPlist ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS/ExportOptions.plist \
           -allowProvisioningUpdates \
-          -authenticationKeyPath private_keys/AuthKey_${{secrets.ASC_KEY_ID}}.p8 \
+          -authenticationKeyPath `pwd`/private_keys/AuthKey_${{secrets.ASC_KEY_ID}}.p8 \
           -authenticationKeyIssuerID $ASC_ISSUER_ID \
           -authenticationKeyID $ASC_KEY_ID
 
