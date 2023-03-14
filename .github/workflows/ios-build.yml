@@ -16,9 +16,9 @@ jobs:
       with:
         clean: false
         lfs: true
-    # - name: Build iOS
-    #   run: |
-    #     /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./$SUB_DIRECTORY -executeMethod CI.BuildIOS -buildTarget iOS
+    - name: Build iOS
+      run: |
+        /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./$SUB_DIRECTORY -executeMethod CI.BuildIOS -buildTarget iOS
     - name: Clean Xcode
       run: |
         xcodebuild clean -project ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj -target Unity-iPhone -configuration Release
@@ -61,15 +61,36 @@ jobs:
         create-keychain: true
         p12-file-base64: ${{secrets.BUILD_CERTIFICATE_BASE64}}
         p12-password: ${{secrets.P12_PASSWORD}}
-    # - name: Archive Xcode
-    #   run: |
-    #     xcodebuild -project ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj -scheme Unity-iPhone archive -archivePath ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcarchive -configuration Release -destination 'generic/platform=iOS'
-    # - name: Build ipa
-    #   run: |
-    #     xcodebuild -exportArchive -archivePath ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcarchive -exportPath ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS -exportOptionsPlist ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS/ExportOptions.plist
+    - name: Extract App Store Connect API Private Key
+      env:
+        ASC_API_KEY: ${{secrets.ASC_API_KEY}}
+      run: |
+        mkdir ./private_keys
+        echo -n "$ASC_API_KEY" | base64 -d -o ./private_keys/AuthKey_${{secrets.ASC_KEY_ID}}.p8
+    - name: Archive Xcode
+      env:
+        ASC_ISSURE_ID: ${{secrets.ASC_ISSURE_ID}}
+        ASC_KEY_ID: ${{secrets.ASC_KEY_ID}}
+      run: |
+        xcodebuild \
+          archive \
+          -project ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj \
+          -scheme Unity-iPhone \
+          -archivePath ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcarchive \
+          -configuration Release \
+          -destination 'generic/platform=iOS' \
+          -allowProvisioningUpdates
+    - name: Build ipa
+      run: |
+        xcodebuild \
+          -exportArchive \
+          -archivePath ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcarchive \
+          -exportPath ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS \
+          -exportOptionsPlist ./$SUB_DIRECTORY/$OUTPUT_PATH/iOS/ExportOptions.plist \
+          -allowProvisioningUpdates
     - name: Clean up keychain and provisioning profile
       if: ${{always()}}
       run: |
         security delete-keychain signing_temp.keychain
-        security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-        rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
+    #    security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+    #    rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
