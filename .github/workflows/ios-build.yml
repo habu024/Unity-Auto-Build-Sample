@@ -5,6 +5,7 @@ on: workflow_dispatch
 env:
   UNITY_VERSION: "2021.3.19f1"
   SUB_DIRECTORY: unity-auto-build-sample
+  PRODUCT_NAME: unity-auto-build-sample
   OUTPUT_PATH: Build
 
 jobs:
@@ -16,44 +17,15 @@ jobs:
       with:
         clean: false
         lfs: true
+
     - name: Build iOS
       run: |
         /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./$SUB_DIRECTORY -executeMethod CI.BuildIOS -buildTarget iOS
+
     - name: Clean Xcode
       run: |
         xcodebuild clean -project ./$SUB_DIRECTORY/$OUTPUT_PATH/Xcode/Unity-iPhone.xcodeproj -target Unity-iPhone -configuration Release
-    # - name: Install Apple certificate and provisioning profile
-    #   env:
-    #     BUILD_CERTIFICATE_BASE64: ${{secrets.BUILD_CERTIFICATE_BASE64}}
-    #     P12_PASSWORD: ${{secrets.P12_PASSWORD}}
-    #     BUILD_PROVISION_PROFILE_BASE64: ${{secrets.BUILD_PROVISION_PROFILE_BASE64}}
-    #     KEYCHAIN_PASSWORD: ${{secrets.KEYCHAIN_PASSWORD}}
-    #   run: |
-    #     CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-    #     PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-    #     KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-    #     echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-    #     echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-
-    #     security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-    #     security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-    #     security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-    #     security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-    #     security list-keychain -d user -s $KEYCHAIN_PATH
-    #     security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-    #     mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-    #     cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-    # - name: Import Provisioning Profile
-    #   run: |
-    #     mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-    #     echo -n ${{secrets.BUILD_PROVISION_PROFILE_BASE64}} | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
-    # - name: Delete keychain
-    #   if: always()
-    #   run: |
-    #     security delete-keychain "signing_temp.keychain"
     - name: Import Code Signing Certificates
       uses: apple-actions/import-codesign-certs@v1
       with:
@@ -61,12 +33,14 @@ jobs:
         create-keychain: true
         p12-file-base64: ${{secrets.BUILD_CERTIFICATE_BASE64}}
         p12-password: ${{secrets.P12_PASSWORD}}
+
     - name: Extract App Store Connect API Private Key
       env:
         ASC_API_KEY: ${{secrets.ASC_API_KEY}}
       run: |
         mkdir -p ./private_keys
         echo -n "$ASC_API_KEY" | base64 -d -o ./private_keys/AuthKey_${{secrets.ASC_KEY_ID}}.p8
+
     - name: Archive Xcode
       run: |
         xcodebuild \
@@ -78,6 +52,7 @@ jobs:
           -destination 'generic/platform=iOS' \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
+ 
     - name: Build ipa
       env:
         ASC_ISSUER_ID: ${{secrets.ASC_ISSUER_ID}}
@@ -93,9 +68,16 @@ jobs:
           -authenticationKeyIssuerID $ASC_ISSUER_ID \
           -authenticationKeyID $ASC_KEY_ID
 
+    - name: Upload DeployGate
+      run: |
+        curl \
+          -H "Authorization: token ${{secrets.DEPLOYGATE_API_KEY}}" \
+          -F "file=@./$SUB_DIRECTORY/$OUTPUT_PATH/iOS/$PRODUCT_NAME.ipa" \
+          -F "distribution_name=${{secrets.DEPLOYGATE_DISTRIBUTION_KEY}}" \
+          -F "message=from github actions" \
+          -v "https://deploygate.com/api/users/habu024/apps"
+
     - name: Clean up keychain and provisioning profile
       if: ${{always()}}
       run: |
         security delete-keychain signing_temp.keychain
-    #    security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-    #    rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
