@@ -16,9 +16,16 @@ jobs:
       with:
         clean: false
         lfs: true
-    - name: Search Path
-      run: |
-        echo $GITHUB_WORKSPACE
+
     - name: Build Android
       run: |
         /Applications/Unity/Hub/Editor/$UNITY_VERSION/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -silent-crashes -logFile -projectPath ./$SUB_DIRECTORY -executeMethod CI.BuildAndroid -buildTarget Android
+
+    - name: Upload DeployGate
+      run: |
+        curl \
+          -H "Authorization: token ${{secrets.DEPLOYGATE_API_KEY}}" \
+          -F "file=@./$SUB_DIRECTORY/$OUTPUT_PATH/Android/Build.apk" \
+          -F "distribution_name=${{secrets.DG_ANDROID_DIS_KEY}}" \
+          -F "message=from github actions" \
+          -v "https://deploygate.com/api/users/habu024/apps"

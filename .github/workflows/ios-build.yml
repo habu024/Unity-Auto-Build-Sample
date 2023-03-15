@@ -73,7 +73,7 @@ jobs:
         curl \
           -H "Authorization: token ${{secrets.DEPLOYGATE_API_KEY}}" \
           -F "file=@./$SUB_DIRECTORY/$OUTPUT_PATH/iOS/$PRODUCT_NAME.ipa" \
-          -F "distribution_name=${{secrets.DEPLOYGATE_DISTRIBUTION_KEY}}" \
+          -F "distribution_name=${{secrets.DG_IOS_DIS_KEY}}" \
           -F "message=from github actions" \
           -v "https://deploygate.com/api/users/habu024/apps"
 
